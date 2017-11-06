@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ModalController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, LoadingController, AlertController } from 'ionic-angular';
 import { ServiceProvider } from "../../providers/service/service";
 import { DriveOnePage } from "../drive-one/drive-one";
 import { ModalDrivePage } from "../modal-drive/modal-drive";
+import { IndexPage } from "../index/index";
 
 @Component({
   selector: 'page-driver',
   templateUrl: 'driver.html',
+  providers: [
+    ServiceProvider
+  ]
 })
 
 export class DriverPage {
@@ -20,11 +24,26 @@ export class DriverPage {
               public navParams: NavParams,
               public serviceProvider: ServiceProvider,
               public modalCtrl: ModalController,
-              public loadingCtrl: LoadingController) {
+              public loadingCtrl: LoadingController,
+              public alertCtrl: AlertController) {
                 this.count = 0;
   }
 
+  showAlert() {
+      let alert = this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Error ao conectar no servidor. Verifique seu acesso a internet e tente novamente',
+        buttons: ['OK']
+      });
+      alert.present();
+    }
+
+
   ionViewDidLoad() {
+    this.getDrives();
+  }
+
+  getDrives(){
     this.loader = this.loadingCtrl.create({
        content: "Aguarde ...",
        duration: 10000
@@ -37,7 +56,7 @@ export class DriverPage {
 
     this.serviceProvider.getDrives().subscribe (
         data => {
-          
+
           const response = (data as any);
           const object_return = JSON.parse(response._body);
           this.list_drive = object_return;
@@ -46,13 +65,15 @@ export class DriverPage {
           this.list_drive_search = this.list_drive;
           this.loader.dismiss();
 
-          
-          console.log(object_return); 
+
+          console.log(object_return);
         }, error=> {
                     this.loader.dismiss();
+                    this.showAlert();
+                    this.navCtrl.setRoot(IndexPage);
 
           console.log(error);
-        } 
+        }
       )
   }
 
@@ -60,8 +81,12 @@ export class DriverPage {
      this.navCtrl.push(DriveOnePage, {"drive": object});
   }
 
-    presentModal() {
+  presentModal() {
     let modal = this.modalCtrl.create(ModalDrivePage);
+    modal.onDidDismiss(data => {
+     console.log(data);
+     this.getDrives();
+   });
     modal.present();
   }
 

@@ -1,7 +1,7 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>Cliente</ion-title>
+    <ion-title text-uppercase>{{ client.name }}</ion-title>
   </ion-navbar>
 
 </ion-header>
@@ -22,21 +22,29 @@
 
   <br>
 
-  <table>
+  <h3>LISTA DE VENDAS</h3>
+
+   <table *ngIf="client.bills != undefined">
     <tr>
-      <th>Data</th>
-      <th>Valor Total</th>
-      <th>Valor Pago</th>
+      <th>DATA I.</th>
+      <th>DATA F.</th>
+      <th>VALOR TOTAL</th>
+      <th>VALOR PAGO</th>
+      <th>Quant.</th>
     </tr>
-    <tr *ngFor="let bill of client.bills" (click)="goToPaymentPage(bill.payments)">
+
+    <tr *ngFor="let bill of client.bills" (click)="goToPaymentPage(bill)"
+        [ngClass]="(bill.status != 'paid') ? 'null' : 'strikeout'" >
       <td>{{bill.date}}</td>
+      <td>{{bill.end_date}}</td>
       <td>{{bill.value}}</td>
       <td>{{bill.paid}}</td>
+      <td>{{bill.total_payments}}</td>
     </tr>
   </table>
 
-  <ion-fab right bottom>
-    <button ion-fab color="secondary" (click)="presentModal()"><ion-icon name="add"></ion-icon></button>
+  <ion-fab bottom right>
+    <button ion-fab color="secondary" (click)="presentModal(client)"><ion-icon name="add"></ion-icon></button>
   </ion-fab>
 
 </ion-content>
